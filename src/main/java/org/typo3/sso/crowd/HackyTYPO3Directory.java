@@ -28,13 +28,34 @@ public class HackyTYPO3Directory extends InternalDirectory {
         super(internalDirectoryUtils, passwordEncoderFactory, directoryDao, userDao, groupDao, membershipDao);
     }
 
+		/*
+		 * Since we extend Internal Directory, and groups will be managed in this directory,
+		 * not on typo3.org, we can use Crowd's nested groups support.
+		 */
+		public boolean supportsNestedGroups() {
+				return true;
+		}
+
+		/*
+		 * attributes
+		 *   ATTRIBUTE_PASSWORD_COMPLEXITY_MESSAGE 
+		 *   ATTRIBUTE_PASSWORD_HISTORY_COUNT
+		 *   ATTRIBUTE_PASSWORD_MAX_ATTEMPTS
+		 *   ATTRIBUTE_PASSWORD_MAX_CHANGE_TIME
+		 *   ATTRIBUTE_PASSWORD_REGEX
+		 *   ATTRIBUTE_USER_ENCRYPTION_METHOD
+		 *   DESCRIPTIVE_NAME
+		 *
+		 * What about default groups like the Internal Directory?
+		 */
+
     @Override
-    public User authenticate(String usernameFromClient, PasswordCredential credentials)
+    public User authenticate(String username, PasswordCredential credentials)
             throws InactiveAccountException, InvalidAuthenticationException,
             ExpiredCredentialException, UserNotFoundException {
         //Delegate to shell script here.
         try {
-						String[] cmd = {"/opt/typo3/bin/authenticate.sh", usernameFromClient, credentials.getCredential()};
+						String[] cmd = {"/opt/typo3/bin/authenticate.sh", username, credentials.getCredential()};
             Process process = Runtime.getRuntime().exec(cmd);
             int returnValue = process.waitFor();
 
@@ -42,16 +63,15 @@ public class HackyTYPO3Directory extends InternalDirectory {
                 case 0: //success
                     User user;
                     try {
-                        user = findUserByName(usernameFromClient);
+                        user = findUserByName(username);
                     } catch (UserNotFoundException e) {
                         //add the user to Crowd if it's not there, and populate with default groups.
                         //(groups will be managed in Crowd, then pushed to Jira and Gerrit)
 
-                        String userInfo = waitForProcessAndReturnString("/opt/typo3/bin/getUserInfo.sh " + usernameFromClient);
+                        String userInfo = waitForProcessAndReturnString("/opt/typo3/bin/getUserInfo.sh " + username);
                         String[] userInfoParts = userInfo.split(";");
-                        //break userinfo into firstName, lastName, displayName, email
-                        //Also, somehow get whether or not they've signed the CLA and any other groups.
-                        String username = userInfoParts[0];
+                        //TODO: somehow get whether or not they user has signed the CLA and any other groups.
+                        //String username = userInfoParts[0]; //username is already defined.
                         String firstName = userInfoParts[1];
                         String lastName = userInfoParts[2];
                         String displayName = userInfoParts[3];
@@ -59,10 +79,13 @@ public class HackyTYPO3Directory extends InternalDirectory {
                         //signedCla = ;
                         //groups = ;
 
-                        UserTemplate userTemplate = new UserTemplate(username, firstName, lastName, displayName);
+                        UserTemplate userTemplate = new UserTemplate(username);
+												userTemplate.setFirstName(firstName);
+												userTemplate.setLastName(lastName);
+												userTemplate.setDisplayName(displayName);
                         userTemplate.setEmailAddress(email);
+												userTemplate.setDirectoryId(getDirectoryId());
 
-												//This needs the directoryId
                         user = addUser(userTemplate, null); // null password in Crowd.
 
 
