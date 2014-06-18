@@ -34,7 +34,8 @@ public class HackyTYPO3Directory extends InternalDirectory {
             ExpiredCredentialException, UserNotFoundException {
         //Delegate to shell script here.
         try {
-            Process process = Runtime.getRuntime().exec("authenticate.sh " + usernameFromClient + " " + credentials);//TODO: This script doesn't exist yet. Could call php too.
+						String[] cmd = {"/opt/typo3/bin/authenticate.sh", usernameFromClient, credentials.getCredential()};
+            Process process = Runtime.getRuntime().exec(cmd);
             int returnValue = process.waitFor();
 
             switch (returnValue) {
@@ -46,7 +47,7 @@ public class HackyTYPO3Directory extends InternalDirectory {
                         //add the user to Crowd if it's not there, and populate with default groups.
                         //(groups will be managed in Crowd, then pushed to Jira and Gerrit)
 
-                        String userInfo = waitForProcessAndReturnString("getUserInfo.sh " + usernameFromClient);
+                        String userInfo = waitForProcessAndReturnString("/opt/typo3/bin/getUserInfo.sh " + usernameFromClient);
                         String[] userInfoParts = userInfo.split(";");
                         //break userinfo into firstName, lastName, displayName, email
                         //Also, somehow get whether or not they've signed the CLA and any other groups.
@@ -61,6 +62,7 @@ public class HackyTYPO3Directory extends InternalDirectory {
                         UserTemplate userTemplate = new UserTemplate(username, firstName, lastName, displayName);
                         userTemplate.setEmailAddress(email);
 
+												//This needs the directoryId
                         user = addUser(userTemplate, null); // null password in Crowd.
 
 
@@ -69,6 +71,7 @@ public class HackyTYPO3Directory extends InternalDirectory {
                         //for (String groupname : defaultGroups) {
                         //	addUserToGroup(username, groupName);
                         //}
+												//throw new UserNotFoundException("User not found");
                     }
 
                     return user;
@@ -104,7 +107,7 @@ public class HackyTYPO3Directory extends InternalDirectory {
     private String waitForProcessAndReturnString(String processName) throws IOException, InterruptedException {
         String output = "";
         String line;
-        Process process = Runtime.getRuntime().exec(processName);//TODO: This script doesn't exist yet. Could call php too.
+        Process process = Runtime.getRuntime().exec(processName);
         BufferedReader bri = new BufferedReader
                 (new InputStreamReader(process.getInputStream()));
         while ((line = bri.readLine()) != null) {
