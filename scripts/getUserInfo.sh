@@ -18,6 +18,22 @@
 #    4: User not found                              #
 #    5: server error                                #
 #                                                   #
+# User fields stored on typo3.org:                  #
+#    username                                       #
+#    password                                       #
+#    user-name:      Name                           #
+#    user-email:     E-mail                         #
+#    user-www:       Homepage                       #
+#    user-title:     Title                          #
+#    user-company:   Company                        #
+#    user-address:   Address                        #
+#    user-zip:       Zipcode                        #
+#    user-city:      City                           #
+#    user-country:   Country                        #
+#    user-telephone: Telephone                      #
+#    user-fax:       Fax                            #
+#    tx_t3ouserimage_pi1[image]                     #
+#                                                   #
 #####################################################
 
 echo "testUsername;firstName;lastName;displayName;email@example.com"
