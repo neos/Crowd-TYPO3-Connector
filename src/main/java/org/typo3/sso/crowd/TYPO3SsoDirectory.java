@@ -8,6 +8,7 @@ import com.atlassian.crowd.embedded.spi.GroupDao;
 import com.atlassian.crowd.embedded.spi.MembershipDao;
 import com.atlassian.crowd.embedded.spi.UserDao;
 import com.atlassian.crowd.exception.*;
+import com.atlassian.crowd.model.user.InternalUser;
 import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.model.user.UserTemplate;
 import com.atlassian.crowd.password.factory.PasswordEncoderFactory;
@@ -108,16 +109,22 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 				throw new InvalidAuthenticationException("Auth Failed");
 			} else {
 				User user;
+
+				JSONObject parsedResponseString = (JSONObject) JSONValue.parse(responseString);
+				logger.info("PARSED RESPONSE: " + parsedResponseString);
+
 				try {
 					user = findUserByName(username);
+					logger.info("Found user: " + user);
+
+					if (parsedResponseString.get("tx_t3ocla_hassignedcla").equals("1")) {
+						addUserToGroup(username, attributes.get("contributorGroup"));
+					}
 
 					return user;
 				} catch (UserNotFoundException e) {
 					//add the user to Crowd if it's not there, and populate with default groups.
 					//(groups will be managed in Crowd, then pushed to Jira)
-
-					JSONObject parsedResponseString = (JSONObject) JSONValue.parse(responseString);
-					logger.info("PARSED RESPONSE: " + parsedResponseString);
 
 					if (!username.equals(parsedResponseString.get("username"))) {
 						throw new InvalidAuthenticationException("Something went terribly wrong");
