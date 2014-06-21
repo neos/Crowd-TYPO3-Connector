@@ -140,6 +140,7 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 					userTemplate.setDisplayName((String) parsedResponseString.get("name"));
 					userTemplate.setEmailAddress((String) parsedResponseString.get("email"));
 					userTemplate.setDirectoryId(getDirectoryId());
+					userTemplate.setActive(true);
 
 					user = addUser(userTemplate, null); // null password in Crowd.
 
