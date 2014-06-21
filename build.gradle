@@ -24,4 +24,5 @@ dependencies {
         exclude(group: 'com.sun.jmx')
         exclude(group: 'javax.transaction', module: 'jta')
     }
+	compile('com.googlecode.json-simple:json-simple:1.1')
 }
