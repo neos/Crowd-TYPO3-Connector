@@ -110,6 +110,7 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 				User user;
 				try {
 					user = findUserByName(username);
+
 					return user;
 				} catch (UserNotFoundException e) {
 					//add the user to Crowd if it's not there, and populate with default groups.
@@ -130,15 +131,24 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 					userTemplate.setDirectoryId(getDirectoryId());
 
 					user = addUser(userTemplate, null); // null password in Crowd.
-					return user;
+
 
 
 					//We might need to add default groups eventually, but Crowd might be able to do that automatically, so we'll ignore it for now.
 					//get defaultGroups
-					//for (String groupname : defaultGroups) {
-					//	addUserToGroup(username, groupName);
-					//}
+
+					String[] defaultGroups = attributes.get("defaultGroups").split(",");
+
+					for (String group : defaultGroups) {
+						addUserToGroup(username, group);
+					}
+
+					if (parsedResponseString.get("tx_t3ocla_hassignedcla").equals("1")) {
+						addUserToGroup(username, attributes.get("contributorGroup"));
+					}
+
 					//throw new UserNotFoundException("User not found");
+					return user;
 				}
 			}
 		} catch (InvalidUserException e1) {
@@ -148,6 +158,10 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 		} catch (OperationFailedException e1) {
 			e1.printStackTrace();
 		} catch (InvalidCredentialException e1) {
+			e1.printStackTrace();
+		} catch (GroupNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (MembershipAlreadyExistsException e1) {
 			e1.printStackTrace();
 		}
 

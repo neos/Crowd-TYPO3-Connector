@@ -19,3 +19,5 @@ After that, restart crowd.
 
 * Then, the Directory Class is: org.typo3.sso.crowd.TYPO3SsoDirectory
 * Set the API key in an attribute called "apiKey"
+* Set the Default User Groups in an attribute called "defaultGroups" (which is a comma-separated group list WITH NO WHITESPACE)
+* If the user has a signed CLA, he additionally gets the User Group from "contributorGroup"
