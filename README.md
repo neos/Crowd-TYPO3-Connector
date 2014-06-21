@@ -1,5 +1,7 @@
 # TYPO3 SSO Atlassian Crowd Authentication Plugin
 
+This was developed to work with Crowd 2.7.2.
+
 In order to compile, run the following command:
 
 `
