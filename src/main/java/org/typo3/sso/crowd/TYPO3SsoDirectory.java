@@ -118,7 +118,11 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 					logger.info("Found user: " + user);
 
 					if (parsedResponseString.get("tx_t3ocla_hassignedcla").equals("1")) {
-						addUserToGroup(username, attributes.get("contributorGroup"));
+						try {
+							addUserToGroup(username, attributes.get("contributorGroup"));
+						} catch (MembershipAlreadyExistsException e1) {
+							// silently swallow this exception
+						}
 					}
 
 					return user;
@@ -146,12 +150,16 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 
 					String[] defaultGroups = attributes.get("defaultGroups").split(",");
 
-					for (String group : defaultGroups) {
-						addUserToGroup(username, group);
-					}
+					try {
+						for (String group : defaultGroups) {
+							addUserToGroup(username, group);
+						}
 
-					if (parsedResponseString.get("tx_t3ocla_hassignedcla").equals("1")) {
-						addUserToGroup(username, attributes.get("contributorGroup"));
+						if (parsedResponseString.get("tx_t3ocla_hassignedcla").equals("1")) {
+							addUserToGroup(username, attributes.get("contributorGroup"));
+						}
+					} catch (MembershipAlreadyExistsException e1) {
+						// silently swallow this exception
 					}
 
 					//throw new UserNotFoundException("User not found");
@@ -167,8 +175,6 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 		} catch (InvalidCredentialException e1) {
 			e1.printStackTrace();
 		} catch (GroupNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (MembershipAlreadyExistsException e1) {
 			e1.printStackTrace();
 		}
 
