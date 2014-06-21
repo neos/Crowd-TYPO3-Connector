@@ -21,3 +21,19 @@ After that, restart crowd.
 * Set the API key in an attribute called "apiKey"
 * Set the Default User Groups in an attribute called "defaultGroups" (which is a comma-separated group list WITH NO WHITESPACE)
 * If the user has a signed CLA, he additionally gets the User Group from "contributorGroup"
+
+
+
+
+### Development
+
+* Development Script for Sebastian:
+
+```
+ps aux | grep crowd
+kill [crowdId]
+
+./gradlew clean jar
+cp build/libs/typo3-jira-auth.jar /Users/sebastian/Downloads/atlassian-crowd-2.7.2/crowd-webapp/WEB-INF/lib/
+/Users/sebastian/Downloads/atlassian-crowd-2.7.2/start_crowd.sh
+```
