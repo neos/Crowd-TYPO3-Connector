@@ -11,6 +11,10 @@ import com.atlassian.crowd.exception.*;
 import com.atlassian.crowd.model.user.User;
 import com.atlassian.crowd.model.user.UserTemplate;
 import com.atlassian.crowd.password.factory.PasswordEncoderFactory;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +28,9 @@ import java.rmi.RemoteException;
 // http://koblik.blogspot.nl/2008/11/atlassian-crowd-custom-directory.html
 
 public class HackyTYPO3Directory extends InternalDirectory {
+
+    private static final Logger logger = LoggerFactory.getLogger(InternalDirectory.class);// configuration parameters
+
     public HackyTYPO3Directory(InternalDirectoryUtils internalDirectoryUtils, PasswordEncoderFactory passwordEncoderFactory, DirectoryDao directoryDao, UserDao userDao, GroupDao groupDao, MembershipDao membershipDao) {
         super(internalDirectoryUtils, passwordEncoderFactory, directoryDao, userDao, groupDao, membershipDao);
     }
@@ -53,11 +60,40 @@ public class HackyTYPO3Directory extends InternalDirectory {
     public User authenticate(String username, PasswordCredential credentials)
             throws InactiveAccountException, InvalidAuthenticationException,
             ExpiredCredentialException, UserNotFoundException {
+
         //Delegate to shell script here.
         try {
-						String[] cmd = {"/opt/typo3/bin/authenticate.sh", username, credentials.getCredential()};
-            Process process = Runtime.getRuntime().exec(cmd);
-            int returnValue = process.waitFor();
+
+            int returnValue = 1;
+
+            HttpClient client = new HttpClient();
+
+            BufferedReader br = null;
+
+            PostMethod method = new PostMethod("https://typo3.org/services/authenticate.php");
+            method.addParameter("apiKey", "9ac8173cabf179a1277190a71b6dd009187cabbe7e1ff78a43278919489aac28da10cff83cad8194622b3bc1983710a2");
+            method.addParameter("username", username);
+            method.addParameter("password", credentials.getCredential());
+
+            String responseString = "";
+
+            try {
+                int returnCode = client.executeMethod(method);
+                logger.info("Authentication request returned with code: " + returnCode);
+
+                br = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream()));
+                String readLine;
+                while(((readLine = br.readLine()) != null)) {
+                    logger.info(readLine);
+                    responseString.concat(readLine);
+
+                }
+            } catch (Exception e) {
+                System.err.println(e);
+            } finally {
+                method.releaseConnection();
+                if(br != null) try { br.close(); } catch (Exception fe) {}
+            }
 
             switch (returnValue) {
                 case 0: //success
