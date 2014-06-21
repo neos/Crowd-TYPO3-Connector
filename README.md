@@ -8,10 +8,10 @@ In order to compile, run the following command:
 
 Then, you need to copy the following two files into Crowd:
 
-`
+```
 cp build/libs/typo3-auth.jar /[path-to-crowd]/crowd-webapp/WEB-INF/lib/
 cp json-simple-1.1.1.jar /[path-to-crowd]/crowd-webapp/WEB-INF/lib/
-`
+```
 
 After that, restart crowd.
 
