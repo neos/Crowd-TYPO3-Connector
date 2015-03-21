@@ -2,6 +2,7 @@ package org.typo3.sso.crowd;
 
 import com.atlassian.crowd.directory.InternalDirectory;
 import com.atlassian.crowd.directory.InternalDirectoryUtils;
+import com.atlassian.crowd.directory.PasswordConstraintsLoader;
 import com.atlassian.crowd.embedded.api.PasswordCredential;
 import com.atlassian.crowd.embedded.spi.DirectoryDao;
 import com.atlassian.crowd.embedded.spi.GroupDao;
@@ -33,8 +34,8 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 	private HashMap<String, String> attributes = new HashMap<String, String>();
 
 
-	public TYPO3SsoDirectory(InternalDirectoryUtils internalDirectoryUtils, PasswordEncoderFactory passwordEncoderFactory, DirectoryDao directoryDao, UserDao userDao, GroupDao groupDao, MembershipDao membershipDao) {
-		super(internalDirectoryUtils, passwordEncoderFactory, directoryDao, userDao, groupDao, membershipDao);
+	public TYPO3SsoDirectory(InternalDirectoryUtils internalDirectoryUtils, PasswordEncoderFactory passwordEncoderFactory, DirectoryDao directoryDao, UserDao userDao, GroupDao groupDao, MembershipDao membershipDao, PasswordConstraintsLoader passwordConstraints) {
+		super(internalDirectoryUtils, passwordEncoderFactory, directoryDao, userDao, groupDao, membershipDao, passwordConstraints);
 	}
 
 	@Override
@@ -45,9 +46,9 @@ public class TYPO3SsoDirectory extends InternalDirectory {
 	}
 
 	/*
-			 * Since we extend Internal Directory, and groups will be managed in this directory,
-			 * not on typo3.org, we can use Crowd's nested groups support.
-			 */
+	 * Since we extend Internal Directory, and groups will be managed in this directory,
+	 * not on typo3.org, we can use Crowd's nested groups support.
+	 */
 	public boolean supportsNestedGroups() {
 		return true;
 	}

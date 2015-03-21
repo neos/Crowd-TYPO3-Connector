@@ -16,7 +16,7 @@ targetCompatibility = 1.6
 
 // In this section you declare the dependencies for your production and test code
 dependencies {
-    compile('com.atlassian.crowd:crowd-core:2.7.2') {
+    compile('com.atlassian.crowd:crowd-core:2.8.0') {
         exclude(group: 'org.springframework.ldap')
         exclude(group: 'org.apache.ws.commons')
         exclude(group: 'javax.jms', module: 'jms')
@@ -25,4 +25,5 @@ dependencies {
         exclude(group: 'javax.transaction', module: 'jta')
     }
 	compile('com.googlecode.json-simple:json-simple:1.1')
+	compile('org.apache.commons:com.springsource.org.apache.commons.httpclient:3.1.0')
 }
